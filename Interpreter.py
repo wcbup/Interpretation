@@ -32,6 +32,8 @@ class JavaClass:
 
 class VariableType(Enum):
     INT = "integer"
+    def __str__(self) -> str:
+        return self.name
 
 
 class JavaVariable:
