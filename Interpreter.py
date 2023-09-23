@@ -116,6 +116,7 @@ class Interpreter:
                     case "integer":
                         value_value: int = value_json["value"]
                         self.stack[-1].operate_stack.append(JavaVariable(value_value))
+                        self.log_operation(f"{opr_type} {value_value}")
                     case _:
                         raise Exception("Unsupported case in value_type:", value_type)
 
