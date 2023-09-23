@@ -148,8 +148,6 @@ class Interpreter:
                     case _:
                         raise Exception("Unsupported case in value_type:", value_type)
 
-                top_stack.program_counter.index += 1  # step 1
-
             case "load":
                 load_type: str = operation_json["type"]
                 match load_type:
@@ -162,8 +160,6 @@ class Interpreter:
 
                     case _:
                         raise Exception("Unsupported case in load_type:", load_type)
-
-                top_stack.program_counter.index += 1  # step 1
 
             case "binary":
                 binary_operant = operation_json["operant"]
@@ -190,12 +186,11 @@ class Interpreter:
                         raise Exception(
                             "Unsupported case in binary_operant", binary_operant
                         )
-                
-                top_stack.program_counter.index += 1  # step 1
 
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
 
+        top_stack.program_counter.index += 1  # step 1
         if len(self.stack) > 0:
             return True
         else:
