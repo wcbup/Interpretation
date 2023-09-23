@@ -205,7 +205,7 @@ class Interpreter:
                         raise Exception(
                             "Unsupported case in if condition:", if_condition
                         )
-                
+
             case "store":
                 store_type = operation_json["type"]
                 store_index: int = operation_json["index"]
@@ -213,15 +213,15 @@ class Interpreter:
                 match store_type:
                     case "int":
                         top_stack.local_variables[store_index] = store_value
-                        self.log_operation(
-                            f"{opr_type}, type: {store_type}"
-                        )
-                    
+                        self.log_operation(f"{opr_type}, type: {store_type}")
+
                     case _:
-                        raise Exception(
-                            "Unsupported case in store type:", store_type
-                        )
-                        
+                        raise Exception("Unsupported case in store type:", store_type)
+
+            case "goto":
+                goto_target: int = operation_json["target"]
+                top_stack.program_counter.index = goto_target - 1
+                self.log_operation(f"{opr_type}, target: {goto_target}")
 
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
