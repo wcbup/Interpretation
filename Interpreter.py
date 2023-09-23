@@ -85,10 +85,18 @@ class JavaProgram:
 
 
 class Interpreter:
-    def __init__(self, java_program: JavaProgram) -> None:
+    def __init__(
+        self, java_program: JavaProgram, init_peremeters: List[JavaVariable]
+    ) -> None:
         self.java_program = java_program
         self.memory: Dict[str, JavaVariable] = {}
         self.stack: List[MethodStack] = []
+
+        init_local_vars: Dict[int, JavaVariable] = {}
+        for i in range(len(init_peremeters)):
+            init_local_vars[i] = init_peremeters[i]
+        init_method_stack = MethodStack(init_local_vars, self.java_program.init_method)
+        self.stack.append(init_method_stack)
 
     def step(self) -> bool:
         """
@@ -123,12 +131,25 @@ class Interpreter:
                 match value_type:
                     case "integer":
                         value_value: int = value_json["value"]
-                        self.stack[-1].operate_stack.append(JavaVariable(value_value))
+                        top_stack.operate_stack.append(JavaVariable(value_value))
                         self.log_operation(f"{opr_type} {value_value}")
                     case _:
                         raise Exception("Unsupported case in value_type:", value_type)
 
-                self.stack[-1].program_counter.index += 1  # step 1
+                top_stack.program_counter.index += 1  # step 1
+
+            case "load":
+                load_type: str = operation_json["type"]
+                match load_type:
+                    case "int":
+                        load_index: int = operation_json["index"]
+                        top_stack.operate_stack.append(
+                            top_stack.local_variables[load_index]
+                        )
+                    case _:
+                        raise Exception("Unsupported case in load_type:", load_type)
+
+                top_stack.program_counter.index += 1  # step 1
 
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
@@ -142,8 +163,6 @@ class Interpreter:
         print("Operation:", log_str)
 
     def run(self) -> None:
-        init_method_stack = MethodStack({}, self.java_program.init_method)
-        self.stack.append(init_method_stack)
         self.log_start()
         self.log_state()
         while self.step():
@@ -162,7 +181,12 @@ class Interpreter:
         print("stack size:", len(self.stack))
         print("top stack:")
         top_stack = self.stack[-1]
-        print(" ", "local varaibles:", top_stack.local_variables)
+        var_str = ""
+        for i in top_stack.local_variables.keys():
+            var_str += f"{i}: {top_stack.local_variables[i]}"
+            if i != len(top_stack.local_variables) - 1:
+                var_str += ", "
+        print(" ", "local varaibles:", f"{{{var_str}}}")
         print(
             " ",
             "operate stack:",
@@ -180,7 +204,7 @@ class Interpreter:
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Simple", "zero"
+        "course-02242-examples", "dtu/compute/exec/Simple", "identity"
     )
-    java_interpreter = Interpreter(java_program)
+    java_interpreter = Interpreter(java_program, [JavaVariable(114)])
     java_interpreter.run()
