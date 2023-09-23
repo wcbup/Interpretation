@@ -205,6 +205,23 @@ class Interpreter:
                         raise Exception(
                             "Unsupported case in if condition:", if_condition
                         )
+                
+            case "store":
+                store_type = operation_json["type"]
+                store_index: int = operation_json["index"]
+                store_value = top_stack.operate_stack.pop()
+                match store_type:
+                    case "int":
+                        top_stack.local_variables[store_index] = store_value
+                        self.log_operation(
+                            f"{opr_type}, type: {store_type}"
+                        )
+                    
+                    case _:
+                        raise Exception(
+                            "Unsupported case in store type:", store_type
+                        )
+                        
 
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
@@ -261,7 +278,7 @@ class Interpreter:
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Simple", "min"
+        "course-02242-examples", "dtu/compute/exec/Simple", "factorial"
     )
-    java_interpreter = Interpreter(java_program, [JavaVariable(114), JavaVariable(514)])
+    java_interpreter = Interpreter(java_program, [JavaVariable(1), JavaVariable(514)])
     java_interpreter.run()
