@@ -223,6 +223,21 @@ class Interpreter:
                 top_stack.program_counter.index = goto_target - 1
                 self.log_operation(f"{opr_type}, target: {goto_target}")
 
+            case "ifz":
+                ifz_condition: str = operation_json["condition"]
+                ifz_target: int = operation_json["target"]
+                ifz_value = top_stack.operate_stack.pop()
+                match ifz_condition:
+                    case "gt":
+                        if ifz_value.value > 0:
+                            top_stack.program_counter.index = ifz_target - 1
+                        self.log_operation(f"{opr_type}, {ifz_condition}, {ifz_target}")
+
+                    case _:
+                        raise Exception(
+                            "Unsupported case in ifz_condition:", ifz_condition
+                        )
+
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
 
