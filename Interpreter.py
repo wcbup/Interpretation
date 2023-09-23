@@ -156,7 +156,11 @@ class Interpreter:
         print("top stack:")
         top_stack = self.stack[-1]
         print(" ", "local varaibles:", top_stack.local_variables)
-        print(" ", "operate stack:", ", ".join(str(x) for x in top_stack.operate_stack))
+        print(
+            " ",
+            "operate stack:",
+            f"[{', '.join(str(x) for x in top_stack.operate_stack)}]",
+        )
         print(" ", "program counter index:", top_stack.program_counter.index)
         print()
     
