@@ -179,12 +179,31 @@ class Interpreter:
 
                             case _:
                                 raise Exception(
-                                    "Unsupported case in add type", binary_type
+                                    "Unsupported case in add type:", binary_type
                                 )
 
                     case _:
                         raise Exception(
-                            "Unsupported case in binary_operant", binary_operant
+                            "Unsupported case in binary_operant:", binary_operant
+                        )
+
+            case "if":
+                if_condition: str = operation_json["condition"]
+                if_target: int = operation_json["target"]
+                operand_b = top_stack.operate_stack.pop()
+                operand_a = top_stack.operate_stack.pop()
+                match if_condition:
+                    case "gt":
+                        if operand_a.value > operand_b.value:
+                            top_stack.program_counter.index = if_target - 1
+
+                        self.log_operation(
+                            f"{opr_type}, condition: {if_condition}, target: {if_target}"
+                        )
+
+                    case _:
+                        raise Exception(
+                            "Unsupported case in if condition:", if_condition
                         )
 
             case _:
@@ -242,7 +261,7 @@ class Interpreter:
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Simple", "add"
+        "course-02242-examples", "dtu/compute/exec/Simple", "min"
     )
     java_interpreter = Interpreter(java_program, [JavaVariable(114), JavaVariable(514)])
     java_interpreter.run()
