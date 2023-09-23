@@ -112,12 +112,13 @@ class Interpreter:
                 match return_type:
                     case None:
                         self.log_operation(opr_type + " " + "Void")
+
                     case "int":
-                        self.log_operation(f"{opr_type} {return_type}")
                         # push the return value to the invoker's stack
                         if len(self.stack) > 1:
                             return_value = top_stack.operate_stack.pop()
                             self.stack[-2].operate_stack.append(return_value)
+                        self.log_operation(f"{opr_type} {return_type}")
 
                     case _:
                         raise Exception("Unsupported case in return_type:", return_type)
@@ -133,6 +134,7 @@ class Interpreter:
                         value_value: int = value_json["value"]
                         top_stack.operate_stack.append(JavaVariable(value_value))
                         self.log_operation(f"{opr_type} {value_value}")
+
                     case _:
                         raise Exception("Unsupported case in value_type:", value_type)
 
@@ -146,6 +148,8 @@ class Interpreter:
                         top_stack.operate_stack.append(
                             top_stack.local_variables[load_index]
                         )
+                        self.log_operation(f"{opr_type}, index: {load_index}")
+
                     case _:
                         raise Exception("Unsupported case in load_type:", load_type)
 
@@ -204,7 +208,7 @@ class Interpreter:
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Simple", "identity"
+        "course-02242-examples", "dtu/compute/exec/Simple", "add"
     )
-    java_interpreter = Interpreter(java_program, [JavaVariable(114)])
+    java_interpreter = Interpreter(java_program, [JavaVariable(114), JavaVariable(514)])
     java_interpreter.run()
