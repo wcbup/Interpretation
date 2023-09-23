@@ -1,6 +1,6 @@
 from __future__ import annotations
 from load_class_files import load_class_files
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Tuple
 from enum import Enum
 from copy import deepcopy
 import json
@@ -32,15 +32,16 @@ class JavaClass:
 
 
 class VariableType(Enum):
-    INT = "integer"
+    INT = "Int"
     VOID = "Void"
+    INT_ARRAY = "Int array"
 
     def __str__(self) -> str:
         return self.name
 
 
 class JavaVariable:
-    def __init__(self, value: int | None) -> None:
+    def __init__(self, value: int | None | Tuple[VariableType, List]) -> None:
         match value:
             case int():
                 self.value = value
@@ -48,6 +49,17 @@ class JavaVariable:
             case None:
                 self.value = None
                 self.type = VariableType.VOID
+            case tuple():
+                array_type, array_values = value
+                match array_type:
+                    case VariableType.INT:
+                        self.value = array_values
+                        self.type = VariableType.INT_ARRAY
+                    case _:
+                        raise Exception(
+                            "Unsupported array type in JavaVariable", array_type
+                        )
+
             case _:
                 raise Exception("Unsupported type in JavaVariable", value)
 
@@ -317,7 +329,7 @@ class Interpreter:
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Simple", "factorial"
+        "course-02242-examples", "dtu/compute/exec/Array", "first"
     )
-    java_interpreter = Interpreter(java_program, [JavaVariable(5), JavaVariable(514)])
+    java_interpreter = Interpreter(java_program, [JavaVariable((VariableType.INT, [1, 2, 3]))])
     java_interpreter.run()
