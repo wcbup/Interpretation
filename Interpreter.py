@@ -32,6 +32,7 @@ class JavaClass:
 
 class VariableType(Enum):
     INT = "integer"
+
     def __str__(self) -> str:
         return self.name
 
@@ -44,7 +45,7 @@ class JavaVariable:
                 self.type = VariableType.INT
             case _:
                 raise Exception("Unsupported type in JavaVariable", value)
-    
+
     def __str__(self) -> str:
         return f"{str(self.type)}: {self.value}"
 
@@ -94,8 +95,8 @@ class Interpreter:
         return true indicates operation continues
         return false indicates operation ends
         """
-        method_stack = self.stack[-1]
-        operation_json = method_stack.program_counter.get_current_operation()
+        top_stack = self.stack[-1]
+        operation_json = top_stack.program_counter.get_current_operation()
         opr_type: str = operation_json["opr"]
         match opr_type:
             case "return":
@@ -103,9 +104,16 @@ class Interpreter:
                 match return_type:
                     case None:
                         self.log_operation(opr_type + " " + "Void")
+                    case "int":
+                        self.log_operation(f"{opr_type} {return_type}")
+                        # push the return value to the invoker's stack
+                        if len(self.stack) > 1:
+                            return_value = top_stack.operate_stack.pop()
+                            self.stack[-2].operate_stack.append(return_value)
+
                     case _:
                         raise Exception("Unsupported case in return_type:", return_type)
-                
+
                 # pop and return
                 self.stack.pop()
 
@@ -120,16 +128,15 @@ class Interpreter:
                     case _:
                         raise Exception("Unsupported case in value_type:", value_type)
 
-                self.stack[-1].program_counter.index += 1 # step 1
+                self.stack[-1].program_counter.index += 1  # step 1
 
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
-        
+
         if len(self.stack) > 0:
             return True
         else:
             return False
-        
 
     def log_operation(self, log_str: str) -> None:
         print("Operation:", log_str)
@@ -163,7 +170,7 @@ class Interpreter:
         )
         print(" ", "program counter index:", top_stack.program_counter.index)
         print()
-    
+
     def log_done(self) -> None:
         print("---final state---")
         print("memory:", self.memory)
@@ -173,7 +180,7 @@ class Interpreter:
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Simple", "noop"
+        "course-02242-examples", "dtu/compute/exec/Simple", "zero"
     )
     java_interpreter = Interpreter(java_program)
     java_interpreter.run()
