@@ -183,6 +183,20 @@ class Interpreter:
                                     "Unsupported case in add type:", binary_type
                                 )
 
+                    case "mul":
+                        match binary_type:
+                            case "int":
+                                result = JavaVariable(operand_a.value * operand_b.value)
+                                top_stack.operate_stack.append(result)
+                                self.log_operation(
+                                    f"mul int: {operand_a.value}, {operand_b.value}"
+                                )
+
+                            case _:
+                                raise Exception(
+                                    "Unsupported case in mul type:", binary_type
+                                )
+
                     case _:
                         raise Exception(
                             "Unsupported case in binary_operant:", binary_operant
@@ -305,5 +319,5 @@ if __name__ == "__main__":
     java_program = JavaProgram(
         "course-02242-examples", "dtu/compute/exec/Simple", "factorial"
     )
-    java_interpreter = Interpreter(java_program, [JavaVariable(1), JavaVariable(514)])
+    java_interpreter = Interpreter(java_program, [JavaVariable(5), JavaVariable(514)])
     java_interpreter.run()
