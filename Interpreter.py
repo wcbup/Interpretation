@@ -101,9 +101,11 @@ class Interpreter:
                 match return_type:
                     case None:
                         self.log_operation(opr_type + " " + "Void")
-                        return False
                     case _:
                         raise Exception("Unsupported case in return_type:", return_type)
+                
+                # pop and return
+                self.stack.pop()
 
             case "push":
                 value_json: Dict[str, Union[int, str]] = operation_json["value"]
@@ -116,10 +118,15 @@ class Interpreter:
                         raise Exception("Unsupported case in value_type:", value_type)
 
                 self.stack[-1].program_counter.index += 1 # step 1
-                return False
 
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
+        
+        if len(self.stack) > 0:
+            return True
+        else:
+            return False
+        
 
     def log_operation(self, log_str: str) -> None:
         print("Operation:", log_str)
@@ -131,7 +138,7 @@ class Interpreter:
         self.log_state()
         while self.step():
             self.log_state()
-        self.log_state()
+        self.log_done()
 
     def log_start(self) -> None:
         print("---starting program---")
@@ -149,12 +156,17 @@ class Interpreter:
         print(" ", "operate stack:", ", ".join(str(x) for x in top_stack.operate_stack))
         print(" ", "program counter index:", top_stack.program_counter.index)
         print()
+    
+    def log_done(self) -> None:
+        print("---final state---")
+        print("memory:", self.memory)
+        print("stack size:", len(self.stack))
 
 
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Simple", "zero"
+        "course-02242-examples", "dtu/compute/exec/Simple", "noop"
     )
     java_interpreter = Interpreter(java_program)
     java_interpreter.run()
