@@ -238,6 +238,15 @@ class Interpreter:
                             "Unsupported case in ifz_condition:", ifz_condition
                         )
 
+            case "incr":
+                incr_index: int = operation_json["index"]
+                incr_amount: int = operation_json["amount"]
+                incr_val = top_stack.local_variables[incr_index]
+                incr_val.value += incr_amount
+                self.log_operation(
+                    f"{opr_type}, index: {incr_index}, amouont: {incr_amount}"
+                )
+
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
 
