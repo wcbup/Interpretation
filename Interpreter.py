@@ -169,7 +169,14 @@ class Interpreter:
                         top_stack.operate_stack.append(
                             deepcopy(top_stack.local_variables[load_index])
                         )
-                        self.log_operation(f"{opr_type}, index: {load_index}")
+                        self.log_operation(f"{opr_type}, type: {load_type}, index: {load_index}")
+
+                    case "ref":
+                        load_index: int = operation_json["index"]
+                        top_stack.operate_stack.append(
+                            top_stack.local_variables[load_index]
+                        )
+                        self.log_operation(f"{opr_type}, type: {load_type}, index: {load_index}")
 
                     case _:
                         raise Exception("Unsupported case in load_type:", load_type)
@@ -331,5 +338,7 @@ if __name__ == "__main__":
     java_program = JavaProgram(
         "course-02242-examples", "dtu/compute/exec/Array", "first"
     )
-    java_interpreter = Interpreter(java_program, [JavaVariable((VariableType.INT, [1, 2, 3]))])
+    java_interpreter = Interpreter(
+        java_program, [JavaVariable((VariableType.INT, [1, 2, 3]))]
+    )
     java_interpreter.run()
