@@ -32,17 +32,21 @@ class JavaClass:
 
 class VariableType(Enum):
     INT = "integer"
+    VOID = "Void"
 
     def __str__(self) -> str:
         return self.name
 
 
 class JavaVariable:
-    def __init__(self, value: int) -> None:
+    def __init__(self, value: int | None) -> None:
         match value:
             case int():
                 self.value = value
                 self.type = VariableType.INT
+            case None:
+                self.value = None
+                self.type = VariableType.VOID
             case _:
                 raise Exception("Unsupported type in JavaVariable", value)
 
@@ -98,6 +102,8 @@ class Interpreter:
         init_method_stack = MethodStack(init_local_vars, self.java_program.init_method)
         self.stack.append(init_method_stack)
 
+        self.return_value = JavaVariable(None)
+
     def step(self) -> bool:
         """
         return true indicates operation continues
@@ -111,17 +117,21 @@ class Interpreter:
                 return_type: str | None = operation_json["type"]
                 match return_type:
                     case None:
-                        self.log_operation(opr_type + " " + "Void")
+                        return_value = JavaVariable(None)
 
                     case "int":
                         # push the return value to the invoker's stack
-                        if len(self.stack) > 1:
-                            return_value = top_stack.operate_stack.pop()
-                            self.stack[-2].operate_stack.append(return_value)
-                        self.log_operation(f"{opr_type} {return_type}")
+                        return_value = top_stack.operate_stack.pop()
 
                     case _:
                         raise Exception("Unsupported case in return_type:", return_type)
+
+                if len(self.stack) > 1 and return_value.type != VariableType.VOID:
+                    self.stack[-2].operate_stack.append(return_value)
+                else:
+                    self.return_value = return_value
+
+                self.log_operation(f"{opr_type} {return_type}")
 
                 # pop and return
                 self.stack.pop()
@@ -153,6 +163,34 @@ class Interpreter:
                     case _:
                         raise Exception("Unsupported case in load_type:", load_type)
 
+                top_stack.program_counter.index += 1  # step 1
+
+            case "binary":
+                binary_operant = operation_json["operant"]
+                binary_type = operation_json["type"]
+                operand_b = top_stack.operate_stack.pop()
+                operand_a = top_stack.operate_stack.pop()
+
+                match binary_operant:
+                    case "add":
+                        match binary_type:
+                            case "int":
+                                result = JavaVariable(operand_a.value + operand_b.value)
+                                top_stack.operate_stack.append(result)
+                                self.log_operation(
+                                    f"add int: {operand_a.value}, {operand_b.value}"
+                                )
+
+                            case _:
+                                raise Exception(
+                                    "Unsupported case in add type", binary_type
+                                )
+
+                    case _:
+                        raise Exception(
+                            "Unsupported case in binary_operant", binary_operant
+                        )
+                
                 top_stack.program_counter.index += 1  # step 1
 
             case _:
@@ -203,6 +241,7 @@ class Interpreter:
         print("---final state---")
         print("memory:", self.memory)
         print("stack size:", len(self.stack))
+        print("return value:", str(self.return_value))
 
 
 # test code
