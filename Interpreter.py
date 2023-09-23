@@ -39,6 +39,9 @@ class ProgramCounter:
         self.index = 0
         self.java_method = java_method
 
+    def get_current_operation(self) -> JSON_CONTENT:
+        return self.java_method.bytecode_json[self.index]
+
 
 class MethodStack:
     def __init__(
@@ -57,20 +60,73 @@ class JavaProgram:
         for json_str in load_class_files(project_name):
             java_class = JavaClass(json_str)
             self.java_class_dict[java_class.id] = java_class
-        
+
         self.init_class_name = init_class_name
         self.init_method_name = init_method_name
-        
-        # print(self.java_class_dict[init_class_name].method_dict[init_method_name].bytecode_json)
-    
+        self.init_method = self.java_class_dict[init_class_name].method_dict[
+            init_method_name
+        ]
 
 
 class Interpreter:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, java_program: JavaProgram) -> None:
+        self.java_program = java_program
+        self.memory: Dict[str, JavaVariable] = {}
+        self.stack: List[MethodStack] = []
+
+    def step(self) -> bool:
+        """
+        return true indicates operation continues
+        return false indicates operation ends
+        """
+        method_stack = self.stack[-1]
+        operation_json = method_stack.program_counter.get_current_operation()
+        opr_type: str = operation_json["opr"]
+        match opr_type:
+            case "return":
+                return_type: str | None = operation_json["type"]
+                match return_type:
+                    case None:
+                        self.log_operation(opr_type + " " + "Void")
+                        return False
+                    case _:
+                        raise Exception("Unsupported case in return_type:", return_type)
+            case _:
+                raise Exception("Unsupported case in opr_type:", opr_type)
+
+    def log_operation(self, log_str: str) -> None:
+        print("Operation:", log_str)
+
+    def run(self) -> None:
+        init_method_stack = MethodStack({}, self.java_program.init_method)
+        self.stack.append(init_method_stack)
+        self.log_start()
+        self.log_state()
+        while self.step():
+            self.log_state()
+        self.log_state()
+
+    def log_start(self) -> None:
+        print("---starting program---")
+        print("init class:", self.java_program.init_class_name)
+        print("init method:", self.java_program.init_method_name)
+        print()
+
+    def log_state(self) -> None:
+        print("---state---")
+        print("memory:", self.memory)
+        print("stack:")
+        top_stack = self.stack[-1]
+        print(" ", "local varaibles:", top_stack.local_variables)
+        print(" ", "operate stack:", top_stack.operate_stack)
+        print(" ", "program counter index:", top_stack.program_counter.index)
+        print()
 
 
 # test code
 if __name__ == "__main__":
-    java_program = JavaProgram("course-02242-examples", "dtu/compute/exec/Simple", "noop")
-    
+    java_program = JavaProgram(
+        "course-02242-examples", "dtu/compute/exec/Simple", "noop"
+    )
+    java_interpreter = Interpreter(java_program)
+    java_interpreter.run()
