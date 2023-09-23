@@ -169,17 +169,35 @@ class Interpreter:
                         top_stack.operate_stack.append(
                             deepcopy(top_stack.local_variables[load_index])
                         )
-                        self.log_operation(f"{opr_type}, type: {load_type}, index: {load_index}")
+                        self.log_operation(
+                            f"{opr_type}, type: {load_type}, index: {load_index}"
+                        )
 
                     case "ref":
                         load_index: int = operation_json["index"]
                         top_stack.operate_stack.append(
                             top_stack.local_variables[load_index]
                         )
-                        self.log_operation(f"{opr_type}, type: {load_type}, index: {load_index}")
+                        self.log_operation(
+                            f"{opr_type}, type: {load_type}, index: {load_index}"
+                        )
 
                     case _:
                         raise Exception("Unsupported case in load_type:", load_type)
+
+            case "array_load":
+                load_type: str = operation_json["type"]
+                load_index: JavaVariable = top_stack.operate_stack.pop()
+                array_ref = top_stack.operate_stack.pop()
+                match load_type:
+                    case "int":
+                        result_value = JavaVariable(array_ref.value[load_index.value])
+                        top_stack.operate_stack.append(result_value)
+                        self.log_operation(
+                            f"{opr_type}, {load_type}, {load_index.value}"
+                        )
+                    case _:
+                        raise Exception("Unsupport type in array load:", load_type)
 
             case "binary":
                 binary_operant = operation_json["operant"]
@@ -339,6 +357,6 @@ if __name__ == "__main__":
         "course-02242-examples", "dtu/compute/exec/Array", "first"
     )
     java_interpreter = Interpreter(
-        java_program, [JavaVariable((VariableType.INT, [1, 2, 3]))]
+        java_program, [JavaVariable((VariableType.INT, [114, 514, 3]))]
     )
     java_interpreter.run()
