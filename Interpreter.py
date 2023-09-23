@@ -2,6 +2,7 @@ from __future__ import annotations
 from load_class_files import load_class_files
 from typing import List, Dict, Union
 from enum import Enum
+from copy import deepcopy
 import json
 
 JSON_CONTENT = Dict[str, Union[str, List[Union[str, Dict]], Dict]]
@@ -154,7 +155,7 @@ class Interpreter:
                     case "int":
                         load_index: int = operation_json["index"]
                         top_stack.operate_stack.append(
-                            top_stack.local_variables[load_index]
+                            deepcopy(top_stack.local_variables[load_index])
                         )
                         self.log_operation(f"{opr_type}, index: {load_index}")
 
