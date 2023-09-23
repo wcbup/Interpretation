@@ -1,6 +1,7 @@
 from __future__ import annotations
 from load_class_files import load_class_files
 from typing import List, Dict, Union
+from enum import Enum
 import json
 
 JSON_CONTENT = Dict[str, Union[str, List[Union[str, Dict]], Dict]]
@@ -29,9 +30,21 @@ class JavaClass:
                     break
 
 
+class VariableType(Enum):
+    INT = "integer"
+
+
 class JavaVariable:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, value: int) -> None:
+        match value:
+            case int():
+                self.value = value
+                self.type = VariableType.INT
+            case _:
+                raise Exception("Unsupported type in JavaVariable", value)
+    
+    def __str__(self) -> str:
+        return f"{str(self.type)}: {self.value}"
 
 
 class ProgramCounter:
@@ -91,6 +104,20 @@ class Interpreter:
                         return False
                     case _:
                         raise Exception("Unsupported case in return_type:", return_type)
+
+            case "push":
+                value_json: Dict[str, Union[int, str]] = operation_json["value"]
+                value_type = value_json["type"]
+                match value_type:
+                    case "integer":
+                        value_value: int = value_json["value"]
+                        self.stack[-1].operate_stack.append(JavaVariable(value_value))
+                    case _:
+                        raise Exception("Unsupported case in value_type:", value_type)
+
+                self.stack[-1].program_counter.index += 1 # step 1
+                return False
+
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
 
@@ -115,10 +142,11 @@ class Interpreter:
     def log_state(self) -> None:
         print("---state---")
         print("memory:", self.memory)
-        print("stack:")
+        print("stack size:", len(self.stack))
+        print("top stack:")
         top_stack = self.stack[-1]
         print(" ", "local varaibles:", top_stack.local_variables)
-        print(" ", "operate stack:", top_stack.operate_stack)
+        print(" ", "operate stack:", ", ".join(str(x) for x in top_stack.operate_stack))
         print(" ", "program counter index:", top_stack.program_counter.index)
         print()
 
@@ -126,7 +154,7 @@ class Interpreter:
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Simple", "noop"
+        "course-02242-examples", "dtu/compute/exec/Simple", "zero"
     )
     java_interpreter = Interpreter(java_program)
     java_interpreter.run()
