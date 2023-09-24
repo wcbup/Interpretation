@@ -443,7 +443,7 @@ class Interpreter:
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Array", "newArray"
+        "course-02242-examples", "dtu/compute/exec/Array", "newArrayOutOfBounds"
     )
     java_interpreter = Interpreter(java_program, [])
     java_interpreter.run()
