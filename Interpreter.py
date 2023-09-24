@@ -305,7 +305,7 @@ class Interpreter:
                 store_index: int = operation_json["index"]
                 store_value = top_stack.operate_stack.pop()
                 match store_type:
-                    case "int":
+                    case "int" | "ref":
                         top_stack.local_variables[store_index] = store_value
                         self.log_operation(f"{opr_type}, type: {store_type}")
 
