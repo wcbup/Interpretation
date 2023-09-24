@@ -205,6 +205,20 @@ class Interpreter:
                     case _:
                         raise Exception("Unsupport type in array load:", load_type)
 
+            case "array_store":
+                array_value = top_stack.operate_stack.pop()
+                array_index = top_stack.operate_stack.pop()
+                array_ref = top_stack.operate_stack.pop()
+                type_str: str = operation_json["type"]
+                match type_str:
+                    case "int":
+                        array_ref.value[array_index.value] = array_value.value
+
+                    case _:
+                        raise Exception("Unsupported type in array store:", type_str)
+
+                self.log_operation(f"{opr_type}, {type_str}")
+
             case "binary":
                 binary_operant = operation_json["operant"]
                 binary_type = operation_json["type"]
