@@ -338,6 +338,23 @@ class Interpreter:
 
                 self.log_operation(f"{opr_type}, {method_name}, args: {args_json}")
 
+            case "newarray":
+                dimension = operation_json["dim"]
+                if dimension > 1:
+                    raise Exception("Unsupport dim in newarray:", dimension)
+
+                type_str: str = operation_json["type"]
+                match type_str:
+                    case "int":
+                        top_stack.operate_stack.append(
+                            JavaVariable((VariableType.INT, []))
+                        )
+
+                    case _:
+                        raise Exception("Unsupported type in newarray:", type_str)
+
+                self.log_operation(f"{opr_type}, {type_str}, dim: {dimension}")
+
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
 
@@ -392,6 +409,8 @@ class Interpreter:
 
 # test code
 if __name__ == "__main__":
-    java_program = JavaProgram("course-02242-examples", "dtu/compute/exec/Array", "access")
-    java_interpreter = Interpreter(java_program, [JavaVariable(1), JavaVariable((VariableType.INT, [3, 114, 5]))])
+    java_program = JavaProgram(
+        "course-02242-examples", "dtu/compute/exec/Array", "newArray"
+    )
+    java_interpreter = Interpreter(java_program, [])
     java_interpreter.run()
