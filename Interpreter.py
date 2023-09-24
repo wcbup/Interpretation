@@ -392,6 +392,6 @@ class Interpreter:
 
 # test code
 if __name__ == "__main__":
-    java_program = JavaProgram("course-02242-examples", "dtu/compute/exec/Calls", "fib")
-    java_interpreter = Interpreter(java_program, [JavaVariable(3)])
+    java_program = JavaProgram("course-02242-examples", "dtu/compute/exec/Array", "access")
+    java_interpreter = Interpreter(java_program, [JavaVariable(1), JavaVariable((VariableType.INT, [3, 114, 5]))])
     java_interpreter.run()
