@@ -252,6 +252,15 @@ class Interpreter:
                         self.log_operation(
                             f"{opr_type}, condition: {if_condition}, target: {if_target}"
                         )
+                    
+                    case "ge":
+                        if operand_a.value >= operand_b.value:
+                            top_stack.program_counter.index = if_target - 1
+
+                        self.log_operation(
+                            f"{opr_type}, condition: {if_condition}, target: {if_target}"
+                        )
+
 
                     case _:
                         raise Exception(
@@ -354,9 +363,9 @@ class Interpreter:
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Array", "first"
+        "course-02242-examples", "dtu/compute/exec/Calls", "fib"
     )
     java_interpreter = Interpreter(
-        java_program, [JavaVariable((VariableType.INT, [114, 514, 3]))]
+        java_program, [JavaVariable(3)]
     )
     java_interpreter.run()
