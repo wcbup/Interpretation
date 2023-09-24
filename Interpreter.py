@@ -266,7 +266,7 @@ class Interpreter:
                         self.log_operation(
                             f"{opr_type}, condition: {if_condition}, target: {if_target}"
                         )
-                    
+
                     case "ge":
                         if operand_a.value >= operand_b.value:
                             top_stack.program_counter.index = if_target - 1
@@ -274,7 +274,6 @@ class Interpreter:
                         self.log_operation(
                             f"{opr_type}, condition: {if_condition}, target: {if_target}"
                         )
-
 
                     case _:
                         raise Exception(
@@ -321,6 +320,23 @@ class Interpreter:
                 self.log_operation(
                     f"{opr_type}, index: {incr_index}, amouont: {incr_amount}"
                 )
+
+            case "invoke":
+                method_json = operation_json["method"]
+                class_id: str = method_json["ref"]["name"]
+                method_name: str = method_json["name"]
+                new_method = self.java_program.java_class_dict[class_id].method_dict[
+                    method_name
+                ]
+                args_json: List[str] = method_json["args"]
+                parameter_dict: Dict[int, JavaVariable] = {}
+                for i in range(len(args_json)):
+                    parameter = top_stack.operate_stack.pop()
+                    parameter_dict[i] = parameter
+                new_method_stack = MethodStack(parameter_dict, new_method)
+                self.stack.append(new_method_stack)
+
+                self.log_operation(f"{opr_type}, {method_name}, args: {args_json}")
 
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
@@ -376,10 +392,6 @@ class Interpreter:
 
 # test code
 if __name__ == "__main__":
-    java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Calls", "fib"
-    )
-    java_interpreter = Interpreter(
-        java_program, [JavaVariable(3)]
-    )
+    java_program = JavaProgram("course-02242-examples", "dtu/compute/exec/Calls", "fib")
+    java_interpreter = Interpreter(java_program, [JavaVariable(3)])
     java_interpreter.run()
