@@ -355,6 +355,18 @@ class Interpreter:
 
                 self.log_operation(f"{opr_type}, {type_str}, dim: {dimension}")
 
+            case "dup":
+                top_variable = top_stack.operate_stack[-1]
+                match top_variable.type:
+                    case VariableType.INT:
+                        top_stack.operate_stack.append(deepcopy(top_variable))
+                    case VariableType.INT_ARRAY:
+                        top_stack.operate_stack.append(top_variable)
+                    case _:
+                        raise Exception("Unsupported type in dup:", top_variable.type)
+                
+                self.log_operation(opr_type)
+
             case _:
                 raise Exception("Unsupported case in opr_type:", opr_type)
 
