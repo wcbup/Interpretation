@@ -375,6 +375,11 @@ class Interpreter:
                         raise Exception("Unsupported type in newarray:", type_str)
 
                 self.log_operation(f"{opr_type}, {type_str}, dim: {dimension}")
+            
+            case "arraylength":
+                array_ref = top_stack.operate_stack.pop()
+                top_stack.operate_stack.append(JavaVariable(array_ref.length))
+                self.log_operation(opr_type)
 
             case "dup":
                 top_variable = top_stack.operate_stack[-1]
@@ -443,7 +448,7 @@ class Interpreter:
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Array", "newArrayOutOfBounds"
+        "course-02242-examples", "dtu/compute/exec/Array", "bubbleSort"
     )
-    java_interpreter = Interpreter(java_program, [])
+    java_interpreter = Interpreter(java_program, [JavaVariable((VariableType.INT, 5, [5, 4, 3, 114, 514]))])
     java_interpreter.run()
