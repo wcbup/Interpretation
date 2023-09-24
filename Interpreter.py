@@ -294,6 +294,22 @@ class Interpreter:
                         self.log_operation(
                             f"{opr_type}, condition: {if_condition}, target: {if_target}"
                         )
+                    
+                    case "lt":
+                        if operand_a.value < operand_b.value:
+                            top_stack.program_counter.index = if_target - 1
+
+                        self.log_operation(
+                            f"{opr_type}, condition: {if_condition}, target: {if_target}"
+                        )
+
+                    case "le":
+                        if operand_a.value <= operand_b.value:
+                            top_stack.program_counter.index = if_target - 1
+
+                        self.log_operation(
+                            f"{opr_type}, condition: {if_condition}, target: {if_target}"
+                        )
 
                     case _:
                         raise Exception(
@@ -450,5 +466,5 @@ if __name__ == "__main__":
     java_program = JavaProgram(
         "course-02242-examples", "dtu/compute/exec/Array", "bubbleSort"
     )
-    java_interpreter = Interpreter(java_program, [JavaVariable((VariableType.INT, 5, [5, 4, 3, 114, 514]))])
+    java_interpreter = Interpreter(java_program, [JavaVariable((VariableType.INT, 7, [5, 4, 3, 114, 514, 1919]))])
     java_interpreter.run()
