@@ -41,7 +41,7 @@ class VariableType(Enum):
 
 
 class JavaVariable:
-    def __init__(self, value: int | None | Tuple[VariableType, List]) -> None:
+    def __init__(self, value: int | None | Tuple[VariableType, int, List]) -> None:
         match value:
             case int():
                 self.value = value
@@ -50,11 +50,17 @@ class JavaVariable:
                 self.value = None
                 self.type = VariableType.VOID
             case tuple():
-                array_type, array_values = value
+                array_type, length, array_values = value
                 match array_type:
                     case VariableType.INT:
                         self.value = array_values
                         self.type = VariableType.INT_ARRAY
+                        self.length = length
+                        current_length = len(self.value)
+                        if self.length > current_length:
+                            self.value = self.value + [0] * (
+                                self.length - current_length
+                            )
                     case _:
                         raise Exception(
                             "Unsupported array type in JavaVariable", array_type
@@ -344,10 +350,11 @@ class Interpreter:
                     raise Exception("Unsupport dim in newarray:", dimension)
 
                 type_str: str = operation_json["type"]
+                length = top_stack.operate_stack.pop().value
                 match type_str:
                     case "int":
                         top_stack.operate_stack.append(
-                            JavaVariable((VariableType.INT, []))
+                            JavaVariable((VariableType.INT, length, []))
                         )
 
                     case _:
@@ -364,7 +371,7 @@ class Interpreter:
                         top_stack.operate_stack.append(top_variable)
                     case _:
                         raise Exception("Unsupported type in dup:", top_variable.type)
-                
+
                 self.log_operation(opr_type)
 
             case _:
