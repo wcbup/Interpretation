@@ -220,6 +220,20 @@ class Interpreter:
                                     "Unsupported case in add type:", binary_type
                                 )
 
+                    case "sub":
+                        match binary_type:
+                            case "int":
+                                result = JavaVariable(operand_a.value - operand_b.value)
+                                top_stack.operate_stack.append(result)
+                                self.log_operation(
+                                    f"sub int: {operand_a.value}, {operand_b.value}"
+                                )
+
+                            case _:
+                                raise Exception(
+                                    "Unsupported case in add type:", binary_type
+                                )
+
                     case "mul":
                         match binary_type:
                             case "int":
