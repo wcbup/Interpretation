@@ -445,7 +445,7 @@ class Interpreter:
             var_str += f"{i}: {top_stack.local_variables[i]}"
             if i != len(top_stack.local_variables) - 1:
                 var_str += ", "
-        print(" ", "local varaibles:", f"{{{var_str}}}")
+        print(" ", "local variables:", f"{{{var_str}}}")
         print(
             " ",
             "operate stack:",
@@ -464,7 +464,7 @@ class Interpreter:
 # test code
 if __name__ == "__main__":
     java_program = JavaProgram(
-        "course-02242-examples", "dtu/compute/exec/Array", "aWierdOneWithinBounds"
+        "course-02242-examples", "dtu/compute/exec/Array", "access"
     )
-    java_interpreter = Interpreter(java_program, [JavaVariable((VariableType.INT, 7, [5, 4, 3, 114, 514, 1919]))])
+    java_interpreter = Interpreter(java_program, [JavaVariable(2), JavaVariable((VariableType.INT, 7, [5, 4, 3, 114, 514, 1919]))])
     java_interpreter.run()
